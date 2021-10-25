@@ -21,24 +21,40 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ## What is a Coordinate Reference System? (CRS)
 
+- CRS defines how the spatial elements of the data relate to the surface of the Earth (or other bodies)
 - coordinates consist of two numbers representing distance from an origin, usually in x then y dimensions
-- Bullet 2
-- Bullet 3
-
-
-## Definition: Datum
-
-Datum:
-- geodetic datum
-- local datum
-
-![](local.geodetic.datum.png){width=80%}
+- Geographic coordinate systems identify any location on the Earth’s surface using two values (longitude and latitude)
+- associating numerical coordinates with a position on the surface of the Earth
+- CRS are like measurement units for coordinates: they specify which location on Earth a particular coordinate pair refers to
+- all geometries in a geometry list-column must have the same CRS.
 
 ## Definition: Projection
 
-3d to 2d with no perfect solution
+- CRSs are either geographic or projected
+- Geographic CRS, e.g. Ellipsoidal models are defined by two values: the equatorial radius and the polar radius
+- All projected CRSs are based on a geographic CRS; transform 3D to 2D with Easting and Northing values
+  - projecting is always distorted (impossible to have a perfect representation od area, direction, distance, and shape at the same time)
 
-![](projection.jpg){width=80%}
+![](GCS.vs.PCS.jpg){width=60%}
+
+
+## One component of the CRS: the Datum
+
+Datum:
+- geodetic datum, not optimized for a specific location (WGS84)
+- local datum, aligns perfectly with the surface at a particular location (NAD83)
+
+![](local.geodetic.datum.png){width=80%}
+
+## So, how can we define the CRS and the projection in R?
+
+- Spatial R packages support a wide range of CRSs and they use the long-established PROJ library
+- describe CRSs in R with
+- Spatial Reference System Identifier (SRID), short and easy to remember
+  - most popular: EPSG:4326 represents the latitude/longitude WGS84 CRS, and ESRI:54030 -        Robinson projection
+- or with well-known text (WKT216) definitions, exhaustive, detailed, and precise
+  - consists of all information about any given CRS, including its datum and ellipsoid, prime     meridian, projection, units, etc, which makes it more complex
+  
 
 ## What is Simple Features for R? (sf)
 
@@ -72,14 +88,6 @@ plot(pressure)
 
 -Bullet 1
 
-## slide with two coloumns
-<div class="columns-2">
-  ![](pictureExample.png)
-
-  - Bullet 1
-  - Bullet 2
-  - Bullet 3
-</div>
 
 ## Sources
 
