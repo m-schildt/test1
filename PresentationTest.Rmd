@@ -57,7 +57,7 @@ Datum:
 Look at this example from the world dataset in sf:
 ```{r sf, echo = TRUE}
 
-#summary(world)
+summary("world")
 
 #help does not knit?
 ```
@@ -86,3 +86,7 @@ plot(pressure)
 - Bullet 1
 - Bullet 2
 - Bullet 3
+
+## Datums for Hertie
+
+- Test von Marco

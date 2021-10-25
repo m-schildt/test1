@@ -79,32 +79,3 @@ coord_sf(crs = st_crs(4326))
 ggplot(data = world) +
 geom_sf() +
 coord_sf(crs = st_crs(4296))
-knitr::opts_chunk$set(echo = TRUE)
-ggplot(data = world) +
-geom_sf() +
-coord_sf(crs = st_crs(4326))
-library(sf)
-library(spData)
-library(ggplot2)
-ggplot(data = world) +
-geom_sf() +
-coord_sf(crs = st_crs(4326))
-ggplot(data = world) +
-geom_sf() +
-coord_sf(crs = st_crs(4296))
-ggplot(data = world) +
-geom_sf() +
-coord_sf(crs = st_crs(3035))
-ggplot(data = world) +
-geom_sf() +
-coord_sf(crs = st_crs(3857))
-ggplot(data = world) +
-geom_sf() +
-coord_sf(crs = st_crs(3857))
-ggplot(data = world) +
-geom_sf() +
-coord_sf(crs = st_crs(4326))
-ggplot(data = world) +
-geom_sf() +
-coord_sf(crs = st_crs(4296))
-sf_proj_info(type = "proj")
