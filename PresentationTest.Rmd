@@ -9,45 +9,39 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```{r}
 library("sf")
+library(spData)
+world <- world[, c(1, 11)]
 ```
-
-## R Markdown {data-background=pictureExample.png data-background-size=cover}
-
-This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
-
-
 
 ## What is a Coordinate Reference System? (CRS)
 
 - CRS defines how the spatial elements of the data relate to the surface of the Earth (or other bodies)
-- coordinates consist of two numbers representing distance from an origin, usually in x then y dimensions
-- Geographic coordinate systems identify any location on the Earth’s surface using two values (longitude and latitude)
+
 - associating numerical coordinates with a position on the surface of the Earth
-- CRS are like measurement units for coordinates: they specify which location on Earth a particular coordinate pair refers to
-- all geometries in a geometry list-column must have the same CRS.
+
 
 ## Definition: Projection
 
-- CRSs are either geographic or projected
-- Geographic CRS, e.g. Ellipsoidal models are defined by two values: the equatorial radius and the polar radius
+- CRSs are either <b>geographic or projected</b>
+- Geographic CRS, e.g. Ellipsoidal models are defined by two values: the equatorial radius and the polar radius (longitude and latitude) so that any location on the Earth’s surface can be identified 
 - All projected CRSs are based on a geographic CRS; transform 3D to 2D with Easting and Northing values
   - projecting is always distorted (impossible to have a perfect representation od area, direction, distance, and shape at the same time)
+  
 
-![](GCS.vs.PCS.jpg){width=60%}
+## Geographic vs. projected CRS
+
+![](GCS.vs.PCS.jpg){width=90%}
 
 
 ## One component of the CRS: the Datum
+contains information on what ellipsoid to use and the precise relationship between the Cartesian coordinates and location on the Earth’s surface
 
-Datum:
 - geodetic datum, not optimized for a specific location (WGS84)
 - local datum, aligns perfectly with the surface at a particular location (NAD83)
 
 ![](local.geodetic.datum.png){width=80%}
 
 ## So, how can we define the CRS and the projection in R?
-
 - Spatial R packages support a wide range of CRSs and they use the long-established PROJ library
 - describe CRSs in R with
 - Spatial Reference System Identifier (SRID), short and easy to remember
@@ -58,35 +52,68 @@ Datum:
 
 ## What is Simple Features for R? (sf)
 
-<div class="columns-2">
-  ![](sf-classes.png){width=95%}
-
-
 - sf is a package providing a class system for geographic vector data
 - combines functionality of several previous packages (sp, rgdal and rgeos)
 - basic building blocks of sf: different geometry types that are needed for vector geometry types
-- well-known binary (WKB) or well-known text (WKT) are the standard encoding
 - find more useful information about sf in its vignette (vignette("sf1")
 
-## Slide with R Output
+## Most common geometry types
+
+  ![](sf-classes.png){width=70%}
+
+## sf in practice
 - sf objects are stored in dataframes, the geographical data can be found in the ‘geom’ coloumn (contains coordinates of the country polygons)
-Look at this example from the world dataset in sf:
-```{r sf, echo = TRUE}
+- all geometries in a geometry list-column must have the same CRS
 
-summary("world")
-
-#help does not knit?
+## Look at this example from the world dataset in sf:
+```{r sf, echo=TRUE}
+head(world)
 ```
 
-## Slide with Plot
+## simple plot of the geograpgic data
+```{r echo=TRUE}
+plot(world)
 
-```{r pressure}
-plot(pressure)
 ```
 
-## Subtitle | This is a subtitle
 
--Bullet 1
+## Look at the magic behind it
+```{r echo=TRUE}
+st_crs(world)$IsGeographic
+```
+
+You can see that R shows unprojected (3d) data on a 2d screen
+
+## with ggplot
+
+```{r echo=TRUE}
+library(ggplot2)
+ggplot() + geom_sf(data = world)
+```
+
+## different stuff
+```{r}
+st_crs(world)$srid
+st_crs(world)$proj4string
+st_is_longlat(world)
+
+
+# remember, all geometries in a geometry list-column must have the same CRS! We can transform it easily with sf
+
+world_proj = data.frame(world) %>% 
+  st_as_sf(crs = 102041)
+
+world_proj2 <- st_transform(world, 3857)
+
+st_is_longlat(world_proj)
+plot(world_proj2)
+```
+
+
+## plot projected world
+```{r}
+plot(world_proj)
+```
 
 
 ## Sources
