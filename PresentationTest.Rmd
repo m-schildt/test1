@@ -15,33 +15,34 @@ world <- world[, c(1, 11)]
 
 ## What is a Coordinate Reference System? (CRS)
 
-- CRS defines how the spatial elements of the data relate to the surface of the Earth (or other bodies)
+- let's start with the basics: A Coordinate System is a set of mathematical rules for specifying how coordinates are to be assigned to points
+- CRS defines <b>how the spatial elements of data relate to the surface of the Earth</b> (by a datum)
 
-- associating numerical coordinates with a position on the surface of the Earth
+## therefore we need to work with a simplified model of the earth
 
-
-## Definition: Projection
-
-- CRSs are either <b>geographic or projected</b>
-- Geographic CRS, e.g. Ellipsoidal models are defined by two values: the equatorial radius and the polar radius (longitude and latitude) so that any location on the Earth’s surface can be identified 
-- All projected CRSs are based on a geographic CRS; transform 3D to 2D with Easting and Northing values
-  - projecting is always distorted (impossible to have a perfect representation od area, direction, distance, and shape at the same time)
-  
-
-## Geographic vs. projected CRS
-
-![](GCS.vs.PCS.jpg){width=90%}
-
+![](ellipsoid.jpg){width=70%}
 
 ## One component of the CRS: the Datum
 contains information on what ellipsoid to use and the precise relationship between the Cartesian coordinates and location on the Earth’s surface
 
-- geodetic datum, not optimized for a specific location (WGS84)
+- geocentric datum, not optimized for a specific location (WGS84)
 - local datum, aligns perfectly with the surface at a particular location (NAD83)
 
-![](local.geodetic.datum.png){width=80%}
+![](local.geodetic.datum.png){width=70%}
 
-## So, how can we define the CRS and the projection in R?
+## Definition: Projection
+
+- CRSs are either <b>geographic or projected</b>
+- Geographic CRS, e.g. Ellipsoidal models are defined by two values: the equatorial radius and the polar radius (longitude and latitude) 
+- All projected CRSs are based on a geographic CRS; transform 3D to 2D with Easting and Northing values
+  - projecting is always distorted (impossible to have a perfect representation od area, direction, distance, and shape at the same time)
+  
+
+## projections
+
+![](projections.jpg){width=70%}
+
+## So, how can we work with CRS in R?
 - Spatial R packages support a wide range of CRSs and they use the long-established PROJ library
 - describe CRSs in R with
 - Spatial Reference System Identifier (SRID), short and easy to remember
@@ -67,20 +68,15 @@ contains information on what ellipsoid to use and the precise relationship betwe
 
 ## Look at this example from the world dataset in sf:
 ```{r sf, echo=TRUE}
+options(width = 60)
 head(world)
 ```
 
 ## simple plot of the geograpgic data
 ```{r echo=TRUE}
 plot(world)
-
 ```
 
-
-## Look at the magic behind it
-```{r echo=TRUE}
-st_crs(world)$IsGeographic
-```
 
 You can see that R shows unprojected (3d) data on a 2d screen
 
@@ -91,8 +87,10 @@ library(ggplot2)
 ggplot() + geom_sf(data = world)
 ```
 
-## different stuff
+## sf and its useful functions
 ```{r}
+st_crs(world) # get CRS
+st_crs(world)$IsGeographic
 st_crs(world)$srid
 st_crs(world)$proj4string
 st_is_longlat(world)
@@ -103,7 +101,7 @@ st_is_longlat(world)
 world_proj = data.frame(world) %>% 
   st_as_sf(crs = 102041)
 
-world_proj2 <- st_transform(world, 3857)
+world_proj2 <- st_transform(world, 27700)
 
 st_is_longlat(world_proj)
 plot(world_proj2)
@@ -113,6 +111,17 @@ plot(world_proj2)
 ## plot projected world
 ```{r}
 plot(world_proj)
+
+```
+
+
+## fun things we can do with sf
+```{r echo=TRUE}
+#calculate areas
+France = world[world$iso_a2 == "FR", ]
+st_area(France)
+units::set_units(st_area(France), km^2)
+
 ```
 
 
