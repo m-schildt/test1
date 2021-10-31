@@ -1,0 +1,109 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+
+library(ggplot2)
+library(sf)
+
+
+#
+library(spData)
+
+
+world = spData::world
+us.sf <- world[world$name_long == 'United States', ]
+canada.sf <- world[world$name_long == 'Canada', ]
+
+ca <- ggplot() +
+  geom_sf(data = canada.sf)
+
+us <- ggplot() +
+  geom_sf(data = us.sf)
+
+library(patchwork)
+ca + us 
+
+
+
+
+st_crs(us.sf)$IsGeographic
+st_crs(us.sf)$units_gdal 
+st_crs(us.sf)$srid 
+st_crs(us.sf)$proj4string 
+new_vector = st_set_crs(new_vector, "EPSG:4326") # set CRS ESRI:54030 
+
+
+plot(us.sf['pop'], main='US', col = NA)
+plot(canada.sf['pop'], main='Canada', col = NA)
+
+
+
+map_au <- ne_states(country = c("australia"), returnclass = "sf") %>%
+  select(state = name, geometry)
+map_us <- ne_states(country = c("united states of america"), returnclass = "sf") %>%
+  select(state = name, geometry) %>%
+  filter(!state %in% c("Alaska", "Hawaii"))
+
+
+map_au_moved <- map_au
+st_geometry(map_au_moved) <- st_geometry(map_au_moved) + c(-180, 60)
+st_crs(map_au_moved) <- st_crs(map_au)
+
+ggplot(data = map_us, aes(fill = state))+
+  geom_sf()+
+  geom_sf(data = map_au_moved)+ 
+  theme(legend.position = "none")
+
+
+
+```
+
+```{r}
+
+uk.sf <- world[world$name_long == 'United Kingdom', ]
+st_crs(uk.sf)$IsGeographic
+
+uk.4326 <- ggplot() +
+  geom_sf(data = uk.sf)
+
+uk.27700 <- ggplot(data = uk.sf) +
+    geom_sf() +
+    coord_sf(crs = st_crs(27700))
+
+
+library(patchwork)
+uk.4326 + uk.27700
+
+
+uk.27700.sf <- st_transform(uk.sf, 27700)
+st_crs(uk.27700.sf)$IsGeographic
+
+uk.27700.plot <- ggplot() +
+  geom_sf(data = uk.27700.sf)
+
+library(patchwork)
+uk.27700 + uk.27700.plot
+
+```

@@ -1,0 +1,160 @@
+---
+title: "workshop"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setup
+
+### install packages
+```{r}
+#install.packages("sf") 
+#install.packages("spData")
+
+```
+
+### Load packages
+```{r}
+
+library(sf)
+library(spData)
+library(ggplot2)
+
+```
+
+
+### Wold data
+```{r}
+# Alternative 1
+world = spData::world
+
+# Alternative 2
+world = read_sf(system.file("shapes/world.gpkg", package = "spData"))
+
+```
+
+```{r}
+colnames(world)
+```
+```{r}
+head(world$name_long, 20)
+```
+
+
+## CRS with SF
+
+### methods in SF
+```{r}
+methods(class = "sf")
+```
+
+
+
+### Retrieve CRS
+```{r}
+st_crs(world)
+
+```
+
+
+
+### Retrieve additional information about CRS
+```{r}
+st_crs(world)$IsGeographic
+st_crs(world)$units_gdal 
+st_crs(world)$srid 
+st_crs(world)$proj4string 
+```
+
+
+
+
+### Set CRS
+```{r}
+world_wgs84 = st_set_crs(world, "EPSG:4326") # set CRS to WGS84
+st_crs(world_wgs84)$srid 
+```
+
+
+## Projections
+
+### simple plotting with base R
+```{r}
+#plot(world)
+plot(world['continent'])
+```
+### Projections with sf
+```{r}
+sf_proj_info(type = "proj")
+```
+
+
+
+
+### Projections with sf
+```{r}
+world_robin <- st_transform(world, "+proj=robin")
+plot(world_robin['geom'])
+
+world_moll <- st_transform(world, "+proj=moll")
+plot(world_moll['geom'])
+
+```
+
+
+### 
+```{r}
+plot(world_robin['geom'][world_robin$name_long == 'United States', ])
+
+plot(world_moll['geom'][world_moll$name_long == 'United States', ])
+
+plot(world['geom'][world$name_long == 'United States', ])
+
+```
+
+
+
+### Finding the right projection
+```{r}
+# Recommendation https://epsg.io
+
+```
+
+
+
+
+### 
+```{r}
+st_crs(us_states)$srid 
+
+p1 <- ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(2163))
+
+p2 <- ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(4326))
+
+library(patchwork)
+p1 + p2
+
+```
+
+
+
+### Test 2163 on world map
+```{r}
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs = st_crs(2163))
+```
+
+
+
+### set datum
+```{r}
+
+```

@@ -1,0 +1,46 @@
+---
+title: "geo hertie"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+hertie = data.frame(lon = 52.512803179279636, lat = 13.389225005174465) %>% 
+  st_as_sf(coords = c("lon", "lat"))
+
+st_is_longlat(hertie)
+
+```
+
+
+```{r}
+hertie_geo = st_set_crs(hertie, 4326)
+
+st_is_longlat(hertie_geo)
+
+```
+
+```{r}
+hertie_buffer = st_buffer(hertie, dist = 1)
+hertie_geo_buffer = st_buffer(hertie_geo, dist = 1)
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```

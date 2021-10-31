@@ -29,24 +29,36 @@ library(ggplot2)
 vector_filepath = system.file("shapes/world.gpkg", package = "spData")
 wgs84_vector = read_sf(vector_filepath)
 
-st_crs(wgs84_vector)
+# alternative
+world1 = read_sf(system.file("shapes/world.gpkg", package = "spData"))
+world2 = spData::world
+
+
+st_crs(world2)
 
 ggplot() +
-  geom_sf(data = wgs84_vector)
+  geom_sf(data = world2)
 
 
-world_robin <- st_transform(wgs84_vector, "+proj=robin")
+world_robin <- st_transform(world2, "+proj=robin")
 
-world_moll <- st_transform(wgs84_vector, "+proj=moll")  
+world_moll <- st_transform(world2, "+proj=moll")  
 
 
-st_crs(world_robin)
+st_crs(world2)$IsGeographic
+st_crs(world_robin)$IsGeographic
+st_crs(world_moll)$IsGeographic
 
 ggplot() +
   geom_sf(data = world_robin)
 
 ggplot() +
   geom_sf(data = world_moll)
+
+st_crs(us.sf)$IsGeographic
+
+#crs(my_rast) = "EPSG:26912" # set CRS
+
 ```
 ```{r get data, echo=FALSE}
 
@@ -69,23 +81,6 @@ ggplot(data = us_states) +
 
 
 
-library(ggplot2)
-library(maps)
-d1 <- map_data("state")
-d2 <- unique(d1$group)
-n <- length(d2)
-d2 <- data.frame( 
-  group=rep(d2,each=6), 
-  g1=rep(1:3,each=2,length=6*n),
-  g2=rep(1:2,length=6*n),
-  value=runif(6*n)
-)
-d <- merge(d1, d2,  by="group")
-qplot(
-  long, lat, data = d, group = group, 
-  fill = value, geom = "polygon" 
-) + 
-  facet_wrap( ~ g1 + g2 )
 
 ```
 
@@ -107,6 +102,11 @@ ggplot(data = us_states) +
 ggplot(data = us_states) +
     geom_sf() +
     coord_sf(crs = st_crs(4326))
+
+ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs("+proj=robin"))
+
 
 ```
 
