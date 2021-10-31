@@ -1,0 +1,156 @@
+---
+title: "CRS with sf"
+subtitle: "Workshop intro to Data Science 2021"
+author: "Marco Schildt and Hannah Schweren"
+institute: "Hertie School"
+date: "November 4th 2021"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts] 
+    nature:
+      highlightLines: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE}
+library("sf")
+library(spData)
+world <- world[, c(1, 11)]
+```
+
+# What is a Coordinate Reference System? (CRS)
+
+- let's start with the basics: A Coordinate System is a set of mathematical rules for specifying how coordinates are to be assigned to points
+
+
+- CRS defines <b>how the spatial elements of data relate to the surface of the Earth</b> (by a datum)
+---
+
+# Simplify the world
+.center[![Ellipsoid](Ellipsoid.png)]
+.center[Ellipsoid, Source: https://www.icsm.gov.au/sites/default/files/inline-images/spheroid_height_0.jpg]
+---
+# One component of the CRS: the Datum
+
+contains information on what ellipsoid to use and the precise relationship between the Cartesian coordinates and location on the Earth’s surface
+
+- geocentric datum, not optimized for a specific location (WGS84)
+- local datum, aligns perfectly with the surface at a particular location (NAD83)
+
+.center[![](local.geodetic.datum.png)
+.center[Datums, Source: https://www.icsm.gov.au/sites/default/files/inline-images/spheroid_height_0.jpg]]
+---
+
+# Definition: Projection
+
+- CRSs are either <b>geographic or projected</b>
+- Geographic CRS, e.g. Ellipsoidal models are defined by two values: the equatorial radius and the polar radius (longitude and latitude) 
+- All projected CRSs are based on a geographic CRS; transform 3D to 2D with Easting and Northing values
+  - projecting is always distorted (impossible to have a perfect representation od area, direction, distance, and shape at the same time)
+  
+---
+
+# projections
+
+.center[![](projections.png)
+.center[Datums, Source:https://www.joaoleitao.com/wp-content/uploads/2019/04/world-map-projections-1024x903.jpg]]
+---
+
+# So, how can we work with CRS in R?
+- Spatial R packages can work with various CRSs, use the long-established PROJ library
+- describe CRSs in R with
+- Spatial Reference System Identifier (SRID), short and easy to remember
+  - most popular: EPSG:4326 represents the latitude/longitude WGS84 CRS, and ESRI:54030 -        Robinson projection
+- or with well-known text (WKT216) definitions, exhaustive, detailed, and precise
+  - consists of all information about any given CRS, including its datum and ellipsoid, prime     meridian, projection, units, etc, which makes it more complex
+  
+---
+
+# What is Simple Features for R? (sf)
+
+- sf is a package providing a class system for geographic vector data
+- combines functionality of several previous packages (sp, rgdal and rgeos)
+- basic building blocks of sf: different geometry types that are needed for vector geometry
+- find more useful information about sf in its vignette (vignette("sf1")
+
+---
+
+# Most common geometry types
+
+  ![](sf-classes.png){width=65%}
+  .center[Geometry types, Source:https://bookdown.org/robinlovelace/geocompr/figures/sf-classes.png]
+
+---
+
+# sf in practice
+- sf objects are stored in dataframes, the geographical data can be found in the ‘geom’ coloumn (contains coordinates of the country polygons)
+- all geometries in a geometry list-column must have the same CRS
+
+---
+
+# Look at this example from the world dataset in sf:
+```{r sf, echo=TRUE}
+options(width = 60)
+head(world)
+```
+---
+
+# simple plot of the geograpgic data
+```{r echo=TRUE}
+install.packages("spData")
+world_proj = st_transform(world, "+proj=eck4")
+plot(st_geometry(world_proj))
+```
+
+---
+
+
+# with ggplot
+
+```{r echo=TRUE}
+library(ggplot2)
+ggplot() + geom_sf(data = world)
+```
+---
+
+
+# sf and its useful functions
+```{r echo=TRUE}
+st_crs(world) # get CRS
+st_crs(world)$IsGeographic # check if its geographic or projected
+st_crs(new_vector)$units_gdal #find out the CRS units
+st_crs(world)$srid # get the SRID
+st_crs(world)$proj4string # get the proj4string
+
+# remember, all geometries in a geometry list-column must have the same CRS! We can transform it easily with sf
+
+world_proj = data.frame(world) %>% 
+  st_as_sf(crs = 102041)
+
+#can be either SRID ("EPSG:4326" in the example), complete WKT2 representation (proj4string) or CRS (WGS 84)
+
+```
+
+---
+
+# fun things we can do with sf
+```{r echo=TRUE}
+#calculate areas
+France = world[world$iso_a2 == "FR", ]
+st_area(France)
+units::set_units(st_area(France), km^2)
+
+```
+
+---
+# Sources
+
+- Content and code of this workshop draw heavily on the following, very interesting ebook: Muenchow, Robin Lovelace, Jakub Nowosad, Jannes. Geocomputation with R. bookdown.org, https://geocompr.robinlovelace.net/
+
+other sources we used for the presentation:
+- Bivand, Edzer Pebesma, Roger. Spatial Data Science. keen-swartz-3146c4.netlify.app, https://keen-swartz-3146c4.netlify.app/
+- Overview of Coordinate Reference Systems (CRS) in R: https://www.nceas.ucsb.edu/sites/default/files/2020-04/OverviewCoordinateReferenceSystems.pdf

@@ -1,0 +1,124 @@
+---
+title: "Test_markdown"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Including Plots
+
+
+
+```{r prepare crs, echo=FALSE}
+#install.packages("sf")
+#install.packages("spData")
+
+library(sf)
+library(spData)
+library(ggplot2)
+
+
+vector_filepath = system.file("shapes/world.gpkg", package = "spData")
+wgs84_vector = read_sf(vector_filepath)
+
+st_crs(new_vector)
+
+ggplot() +
+  geom_sf(data = wgs84_vector)
+
+
+
+```
+```{r get data, echo=FALSE}
+
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs = st_crs(3035))
+
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs = st_crs(3857))
+
+
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs = st_crs(4326))
+
+ggplot(data = world) +
+    geom_sf() +
+    coord_sf(crs = st_crs(4296))
+
+
+## build a temporary folder on disk
+temp <- tempfile()
+download.url <- "https://userpage.fu-berlin.de/soga/300/30100_data_sets/spatial/"
+zipfile <- "germany_districts.zip"
+## download the file
+download.file(paste0(download.url,zipfile),temp, mode="wb")
+## unzip the file(s)
+unzip(temp)
+## close file connection
+unlink(temp)
+```
+```{r setup, include=FALSE}
+dists <- st_read("./germany_districts.shp")
+methods(class = "sf")
+
+```
+
+```{r setup, include=FALSE}
+plot(dists)
+plot(dists, max.plot = 2)
+plot(dists['district'])
+```
+```{r setup, include=FALSE}
+berlin.sf <- dists['district'][dists$district == 'Berlin', ]
+berlin.sf
+plot(berlin.sf, main='Berlin', col = NA)
+```
+
+```{r setup, include=FALSE}
+methods(class = "sf")
+
+# ETRS89
+st_crs(dists)
+
+
+# WGS 84 / Pseudo-Mercator (3857)
+st_crs(st_transform(dists, 4326))
+st_crs(dists)
+
+
+```
+
+```{r setup, include=FALSE}
+ggplot(dists) +
+  geom_sf(aes(fill = pop)) +
+  scale_fill_viridis_b("pop") +
+  coord_sf(crs = st_crs(4087)) +
+  ggtitle("World Equidistant Cylindrical (EPSG 4087)") +
+  theme_bw()
+
+ggplot(dists) +
+  geom_sf(aes(fill = pop)) +
+  scale_fill_viridis_b("pop") +
+  coord_sf(crs = st_crs(4326)) +
+  ggtitle("World Equidistant Cylindrical (EPSG 4326)") +
+  theme_bw()
+
+```
+
+```{r setup, include=FALSE}
+# Website to https://epsg.io
+
+```
+
+

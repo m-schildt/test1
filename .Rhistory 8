@@ -1,0 +1,161 @@
+knitr::opts_chunk$set(echo = TRUE)
+vector_filepath = system.file("shapes/world.gpkg", package = "spData")
+new_vector = read_sf(vector_filepath)
+install.packages("sf")
+library(sf)
+vector_filepath = system.file("shapes/world.gpkg", package = "spData")
+new_vector = read_sf(vector_filepath)
+install.packages("spData")
+library(spData)
+vector_filepath = system.file("shapes/world.gpkg", package = "spData")
+new_vector = read_sf(vector_filepath)
+View(new_vector)
+library(ggplot2)
+ggplot() +
+geom_sf(data = new_vector)
+st_crs(new_vector)
+vector_filepath = system.file("shapes/world.gpkg", package = "spData")
+wgs84_vector = read_sf(vector_filepath)
+st_crs(new_vector)
+ggplot() +
+geom_sf(data = wgs84_vector)
+robinson_vector = st_set_crs(wgs84_vector, "ESRI:54030") # set CRS
+ggplot() +
+geom_sf(data = robinson_vector)
+robinson_vector = st_set_crs(wgs84_vector, "EPSG:4269") # set CRS
+ggplot() +
+geom_sf(data = robinson_vector)
+robinson_vector = st_set_crs(wgs84_vector, "EPSG:3857") # set CRS
+ggplot() +
+geom_sf(data = robinson_vector)
+ggplot() +
+geom_sf(data = robinson_vector) +
+coord_sf(crs = st_crs(3347))
+obinson_vector = st_set_crs(wgs84_vector, "EPSG:4326") # set CRS
+ggplot() +
+geom_sf(data = robinson_vector) +
+coord_sf(crs = st_crs(3347))
+ggplot() +
+geom_sf(data = robinson_vector) +
+coord_sf(crs = st_crs(4326))
+View(new_vector)
+ggplot() +
+geom_sf(data = wgs84_vector.CA)
+ggplot() +
+geom_sf(data = wgs84_vector["CA"])
+wgs84_vector$CA
+library(maps); library(ggplot2); library(mapproj)
+states <- data(us_states)
+usamap <- ggplot(states, aes(x=long, y=lat, group=group))
+states <- data(us_states)
+usamap <- ggplot(states, aes(x=long, y=lat, group=group)) +
+geom_polygon(fill="white", colour="black") usamap + coord_map("mercator")
+states <- data(us_states)
+usamap <- ggplot(states, aes(x=long, y=lat, group=group)) +
+geom_polygon(fill="white", colour="black")
+states <- data(us_states)
+usamap <- ggplot(states, aes(x=long, y=lat, group=group))
+ggplot() +
+geom_sf(data = data(us_states))
+vector_filepath = system.file("shapes/world.gpkg", package = "spData")
+wgs84_vector = read_sf(vector_filepath)
+st_crs(new_vector)
+ggplot() +
+geom_sf(data = wgs84_vector)
+states <- data(us_states)
+ggplot() +
+geom_sf(data = states) +
+coord_sf(crs = st_crs(4326))
+states <- data("us_states")
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(3035))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(3857))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(4326))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(4296))
+knitr::opts_chunk$set(echo = TRUE)
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(4326))
+library(sf)
+library(spData)
+library(ggplot2)
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(4326))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(4296))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(3035))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(3857))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(3857))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(4326))
+ggplot(data = world) +
+geom_sf() +
+coord_sf(crs = st_crs(4296))
+sf_proj_info(type = "proj")
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+install.packages("rnaturalearth")
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+install.packages("rnaturalearth")
+library(rnaturalearth)
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+worldmap <- ne_countries(scale = 'medium', type = 'map_units', returnclass = 'sf')
+install.packages("rnaturalearthdata")
+worldmap <- ne_countries(scale = 'medium', type = 'map_units', returnclass = 'sf')
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+worldmap <- countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+dummy <- function() rgeos::getScale()
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+world <- ne_countries(scale = 110, type = "countries", continent = NULL,
+country = NULL, geounit = NULL, sovereignty = NULL,
+returnclass = c("sp", "sf"))
+worldmap <- ne_countries(scale = 'medium', type = 'map_units',
+returnclass = 'sf')
+worldmap <- ne_countries(scale = 110, type = "countries", continent = NULL,
+country = NULL, geounit = NULL, sovereignty = NULL,
+returnclass = c("sp", "sf"))
+head(worldmap[c('name', 'continent')])
+View(worldmap)
+View(worldmap)
+ggplot() + geom_sf(data = worldmap) + theme_bw()
+ggplot(data = worldmap) + geom_sf(data = worldmap) + theme_bw()
+ggplot(data = worldmap) + geom_sf() + theme_bw()
+france <- worldmap[worldmap$name == 'France',]
+ggplot() + geom_sf(data = france) + theme_bw()
+knitr::opts_chunk$set(echo = TRUE)
+library(spData)
+library(ggplot2)

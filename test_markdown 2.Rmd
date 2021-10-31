@@ -29,13 +29,24 @@ library(ggplot2)
 vector_filepath = system.file("shapes/world.gpkg", package = "spData")
 wgs84_vector = read_sf(vector_filepath)
 
-st_crs(new_vector)
+st_crs(wgs84_vector)
 
 ggplot() +
   geom_sf(data = wgs84_vector)
 
 
+world_robin <- st_transform(wgs84_vector, "+proj=robin")
 
+world_moll <- st_transform(wgs84_vector, "+proj=moll")  
+
+
+st_crs(world_robin)
+
+ggplot() +
+  geom_sf(data = world_robin)
+
+ggplot() +
+  geom_sf(data = world_moll)
 ```
 ```{r get data, echo=FALSE}
 
@@ -52,9 +63,79 @@ ggplot(data = world) +
     geom_sf() +
     coord_sf(crs = st_crs(4326))
 
-ggplot(data = world) +
+ggplot(data = us_states) +
     geom_sf() +
-    coord_sf(crs = st_crs(4296))
+    coord_sf(crs = st_crs(2163))
+
+
+
+library(ggplot2)
+library(maps)
+d1 <- map_data("state")
+d2 <- unique(d1$group)
+n <- length(d2)
+d2 <- data.frame( 
+  group=rep(d2,each=6), 
+  g1=rep(1:3,each=2,length=6*n),
+  g2=rep(1:2,length=6*n),
+  value=runif(6*n)
+)
+d <- merge(d1, d2,  by="group")
+qplot(
+  long, lat, data = d, group = group, 
+  fill = value, geom = "polygon" 
+) + 
+  facet_wrap( ~ g1 + g2 )
 
 ```
+
+```{r setup, include=FALSE}
+
+
+ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(3857))
+
+ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(2955))
+
+ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(2163))
+
+ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(4326))
+
+```
+
+```{r setup, include=FALSE}
+
+
+p1 <- ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(3857))
+
+p2 <- ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(2955))
+
+p3 <- ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(2163))
+
+p4 <- ggplot(data = us_states) +
+    geom_sf() +
+    coord_sf(crs = st_crs(4326))
+
+library(patchwork)
+p1 + p2 + p3 + p4
+
+
+```
+
+
+
+
 
