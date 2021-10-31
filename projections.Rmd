@@ -50,10 +50,10 @@ st_crs(world_robin)$IsGeographic
 st_crs(world_moll)$IsGeographic
 
 ggplot() +
-  geom_sf(data = world_robin)
+  geom_sf(data = world_robin) + theme_bw()
 
 ggplot() +
-  geom_sf(data = world_moll)
+  geom_sf(data = world_moll) + theme_bw()
 
 st_crs(us.sf)$IsGeographic
 

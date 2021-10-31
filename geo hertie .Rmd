@@ -30,6 +30,7 @@ st_is_longlat(hertie_geo)
 ```
 
 ```{r}
+
 hertie_buffer = st_buffer(hertie, dist = 1)
 hertie_geo_buffer = st_buffer(hertie_geo, dist = 1)
 

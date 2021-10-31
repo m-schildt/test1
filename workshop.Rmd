@@ -87,6 +87,7 @@ st_crs(world_wgs84)$srid
 plot(world['continent'])
 ```
 ### Projections with sf
+
 ```{r}
 sf_proj_info(type = "proj")
 ```
@@ -130,13 +131,15 @@ plot(world['geom'][world$name_long == 'United States', ])
 ```{r}
 st_crs(us_states)$srid 
 
+# EPSG:2163 - NAD83
 p1 <- ggplot(data = us_states) +
     geom_sf() +
-    coord_sf(crs = st_crs(2163))
+    coord_sf(crs = st_crs(2163)) + theme_bw()
 
+# EPSG:4326 - WGS 84 
 p2 <- ggplot(data = us_states) +
     geom_sf() +
-    coord_sf(crs = st_crs(4326))
+    coord_sf(crs = st_crs(4326)) + theme_bw()
 
 library(patchwork)
 p1 + p2
@@ -149,12 +152,155 @@ p1 + p2
 ```{r}
 ggplot(data = world) +
     geom_sf() +
-    coord_sf(crs = st_crs(2163))
+    coord_sf(crs = st_crs(2163)) + theme_bw()
+```
+
+### Displaying Europe without modifying the spatial dataset
+```{r}
+ggplot() + geom_sf(data = world) +
+    coord_sf(xlim = c(-25, 50), ylim = c(30, 73), expand = FALSE) + theme_bw()
+
 ```
 
 
 
-### set datum
+
+
+
+### Displaying Europe with modifying the spatial dataset
+```{r}
+europe <-world['geom'][world$continent == 'Europe', ]
+ggplot() + geom_sf(data = europe) + theme_bw()
+
+
+europe_cropped <- st_crop(europe, xmin = -25, xmax = 50,
+                                   ymin = 30, ymax = 73)
+
+ggplot() + geom_sf(data = europe_cropped) + theme_bw()
+
+```
+
+
+
+### Locate Hertie School
+```{r}
+
+coord_hertie <- c(13.38, 52.52) 
+
+hertie_school = st_sfc(st_point(coord_hertie), crs = 4326)
+
+ggplot() + geom_sf(data = europe_cropped) +
+           geom_sf(data = hertie_school, color = 'red') + 
+           theme_bw()
+
+
+```
+
+### 
+```{r}
+hertie_buff = st_buffer(hertie_school, dist = 50 * 1000)
+
+ggplot() + geom_sf(data = europe_cropped) +
+           geom_sf(data = hertie_buff, fill = 'red', alpha = 0.5, color = 'red') + 
+           theme_bw()
+
+
+
+st_crs(europe_cropped)$units_gdal 
+st_crs(hertie_buff)$units_gdal 
+
+st_crs(europe_cropped)$IsGeographic
+st_crs(hertie_buff)$IsGeographic
+
+```
+
+
+
+### 
+```{r}
+
+buff_500km  = st_buffer(hertie_school, dist = 500 * 1000)
+buff_1000km = st_buffer(hertie_school, dist = 1000 * 1000)
+buff_1500km = st_buffer(hertie_school, dist = 1500 * 1000)
+
+ggplot() + geom_sf(data = europe_cropped) +
+           geom_sf(data = hertie_buff, fill = 'red', alpha = 0.5, color = 'red') +   
+           geom_sf(data = buff_500km, fill = 'grey', alpha = 0.1) +
+           geom_sf(data = buff_1000km, fill = 'grey', alpha = 0.1, ) + 
+           geom_sf(data = buff_1500km, fill = 'grey', alpha = 0.1, ) + 
+           theme_bw()
+
+
+
+st_crs(europe_cropped)$units_gdal 
+st_crs(hertie_buff)$units_gdal 
+
+st_crs(europe_cropped)$IsGeographic
+st_crs(hertie_buff)$IsGeographic
+
+
+
+```
+
+
+
+
+
+### 
+```{r}
+new_europe <- st_transform(europe_cropped, 'EPSG:5643') # set CRS
+new_buff <- st_transform(hertie_buff, 'EPSG:5643') # set CRS
+buff_500km  <- st_transform(buff_500km, 'EPSG:5643') # set CRS
+buff_1000km <- st_transform(buff_1000km, 'EPSG:5643') # set CRS
+buff_1500km <- st_transform(buff_1500km, 'EPSG:5643') # set CRS
+
+
+
+
+ggplot() + geom_sf(data = new_europe) +
+           geom_sf(data = new_buff, fill = 'red', alpha = 0.5, color = 'red') +   
+           geom_sf(data = buff_500km, fill = 'grey', alpha = 0.1) +
+           geom_sf(data = buff_1000km, fill = 'grey', alpha = 0.1, ) + 
+           geom_sf(data = buff_1500km, fill = 'grey', alpha = 0.1, ) + 
+           theme_bw()
+
+
+st_crs(new_europe)$units_gdal 
+st_crs(new_buff)$units_gdal 
+
+st_crs(new_europe)$IsGeographic
+st_crs(new_buff)$IsGeographic
+```
+
+
+
+### 
 ```{r}
 
 ```
+
+
+
+
+### 
+```{r}
+
+```
+
+
+
+
+### 
+```{r}
+
+```
+
+
+
+
+### 
+```{r}
+
+```
+
+
