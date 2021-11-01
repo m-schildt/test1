@@ -1,15 +1,27 @@
 ---
-title: "workshop"
+title: "Workshop"
+subtitle: "Working with CRS in sf"
 output: html_document
+
 ---
+
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Hopefully you learned something new! Feel free to contact us in case you have further questions and enjoy the rest of our interesting workshop day!
+
+
+
 ## Setup
 
 ### install packages
+
+If you’re running Mac or Linux, the previous command to install sf may not work first time. These operating systems (OSs) have ‘systems requirements’ that are described in the package’s README. Various OS-specific instructions can be found online, such as the article Installation of R 4.0 on Ubuntu 20.04 on the blog rtask.thinkr.fr.
+
 ```{r}
 #install.packages("sf") 
 #install.packages("spData")
@@ -17,16 +29,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ### Load packages
+
+sf - Simple Features for R
+
+spData - Diverse spatial datasets for demonstrating, benchmarking and teaching spatial data analysis. It includes R data of class sf (defined by the package 'sf')
+
 ```{r}
 
 library(sf)
 library(spData)
 library(ggplot2)
+library(patchwork)
 
 ```
 
 
 ### Wold data
+
+The object loaded is a sf object containing a world map data from Natural Earth with a few variables from World Bank
 ```{r}
 # Alternative 1
 world = spData::world
@@ -35,6 +55,7 @@ world = spData::world
 world = read_sf(system.file("shapes/world.gpkg", package = "spData"))
 
 ```
+
 
 ```{r}
 colnames(world)
@@ -82,31 +103,38 @@ st_crs(world_wgs84)$srid
 ## Projections
 
 ### simple plotting with base R
+Here we have a geographic coordinate system 
 ```{r}
 #plot(world)
 plot(world['continent'])
 ```
+
+
 ### Projections with sf
 
 ```{r}
-sf_proj_info(type = "proj")
+head(sf_proj_info(type = "proj"))
 ```
 
 
 
 
-### Projections with sf
+Here we have two projected coordinate systems 
 ```{r}
+# Robinson Projections
 world_robin <- st_transform(world, "+proj=robin")
-plot(world_robin['geom'])
+plot(world_robin['lifeExp']) 
 
+# Mollweide Projections
 world_moll <- st_transform(world, "+proj=moll")
-plot(world_moll['geom'])
+plot(world_moll['gdpPercap'])
+
 
 ```
 
 
-### 
+ 
+Here we can the the see the distortions in each of the systems for the USA
 ```{r}
 plot(world_robin['geom'][world_robin$name_long == 'United States', ])
 
@@ -118,20 +146,17 @@ plot(world['geom'][world$name_long == 'United States', ])
 
 
 
-### Finding the right projection
+### Finding the right coordinate systems
+
+We recommend to check out [_https://epsg.io_](https://epsg.io)  for details about coordinate systems
+
+Here we compare the US National Atlas Equal Area projection with WGS 84 coordinate systems
 ```{r}
-# Recommendation https://epsg.io
-
-```
-
-
-
-
-### 
-```{r}
+# the package data is stored in NAD83
 st_crs(us_states)$srid 
+st_crs(us_states)
 
-# EPSG:2163 - NAD83
+# EPSG:2163 - US National Atlas Equal Area
 p1 <- ggplot(data = us_states) +
     geom_sf() +
     coord_sf(crs = st_crs(2163)) + theme_bw()
@@ -147,15 +172,110 @@ p1 + p2
 ```
 
 
-
-### Test 2163 on world map
+Test EPSG:2163 on world map
 ```{r}
 ggplot(data = world) +
     geom_sf() +
     coord_sf(crs = st_crs(2163)) + theme_bw()
 ```
 
-### Displaying Europe without modifying the spatial dataset
+##  Working with spatical data and plots 
+
+###  Australia vs. USA
+
+Here we are combining two plots of Australia and the USA
+```{r}
+
+us_sf <- world['geom'][world$name_long == 'United States', ]
+us_sf <- st_transform(us_sf, "EPSG:4326")
+
+aus_sf <- world['geom'][world$name_long == 'Australia', ]
+aus_sf <- st_transform(aus_sf, "EPSG:4326")
+
+us <- ggplot() +
+  geom_sf(data = us_sf)
+
+aus <- ggplot() +
+  geom_sf(data = aus_sf)
+
+
+us + aus
+
+
+st_crs(us_sf)$srid 
+st_crs(aus_sf)$srid 
+
+```
+
+
+Now we are plotting Australia and the USA in a single plot.
+
+```{r}
+us_sf <- st_transform(us_sf, 'EPSG:4326')
+aus_sf <- st_transform(aus_sf, 'EPSG:4326')
+
+st_crs(us_sf)$units_gdal 
+
+ggplot()+
+  geom_sf(data = us_sf)+
+  geom_sf(data = aus_sf)+ 
+  coord_sf(xlim = c(-130, 150), ylim = c(-50, 50), expand = FALSE) +
+  theme_void()
+
+```
+
+We can move Australia next to the USA.
+Keep in mind that we are still using WGS80 / EPSG:4326.
+That means we have distortions in our plot.
+```{r}
+# copy the object
+map_au_moved <- aus_sf
+# transform (move) the object by -180 degrees + 60 degrees (north/west)
+st_geometry(map_au_moved) <- st_geometry(map_au_moved) + c(-180, 60)
+# copy the coordinate reference systems
+st_crs(map_au_moved) <- st_crs(aus_sf)
+
+ggplot()+
+  geom_sf(data = us_sf)+
+  geom_sf(data = map_au_moved)+ 
+  coord_sf(xlim = c(-130, -20), ylim = c(15, 50), expand = FALSE) +
+  theme_void()
+```
+
+
+
+To minimize distortion we can use local datums.
+Then we use these projections in coordinate system that reflect the same scale
+
+```{r}
+
+us_sf <- st_transform(us_sf, 'EPSG:2163')   # EPSG:2163 - US National Atlas Equal Area
+aus_sf <- st_transform(aus_sf, 'EPSG:3112') # EPSG:3112 - GDA94 / Geoscience Australia Lambert
+
+st_crs(us_sf)$units_gdal 
+st_crs(aus_sf)$units_gdal 
+
+ggplot()+
+  geom_sf(data = us_sf)+
+  # coordinate system with 6.000 km width and 4.000 km height
+  coord_sf(xlim = c(-3000000,3000000), ylim = c(-3000000,1000000)) +
+  theme_bw()
+
+ggplot()+
+  geom_sf(data = aus_sf)+
+  # coordinate system with 6.000 km width and 4.000 km height
+  coord_sf(xlim = c(-3000000,3000000), ylim = c(-5000000,-1000000)) +
+  theme_bw()
+
+```
+
+
+
+##  Displaying and cropping spatial dataset
+
+#### Without modifying the spatial dataset
+Displaying a map of Europe by specifying the longitudes and latitudes with `coord_sf()`
+Notice: `coord_sf()` is applied on the whole world data. 
 ```{r}
 ggplot() + geom_sf(data = world) +
     coord_sf(xlim = c(-25, 50), ylim = c(30, 73), expand = FALSE) + theme_bw()
@@ -167,25 +287,32 @@ ggplot() + geom_sf(data = world) +
 
 
 
-### Displaying Europe with modifying the spatial dataset
+#### With modifying the spatial dataset
+
+Here we filter our World dataset with 'Europe'
+The European overseas territories and Russia are not exactly what we wanted.
 ```{r}
 europe <-world['geom'][world$continent == 'Europe', ]
 ggplot() + geom_sf(data = europe) + theme_bw()
 
+```
+Now we use the cropping function `st_crop()` to cut our dataset.
+```{r}
 
 europe_cropped <- st_crop(europe, xmin = -25, xmax = 50,
-                                   ymin = 30, ymax = 73)
+                                  ymin =  30, ymax = 73)
 
 ggplot() + geom_sf(data = europe_cropped) + theme_bw()
 
 ```
 
 
-
-### Locate Hertie School
+## Locate Hertie School and create our own geometries
+To locate the Hertie School on our map we first have to retrieve the coordinates.
+Then we can create a point geometry and plot it on top of our map.
 ```{r}
 
-coord_hertie <- c(13.38, 52.52) 
+coord_hertie <- c(13.389225005174465, 52.512803179279636) 
 
 hertie_school = st_sfc(st_point(coord_hertie), crs = 4326)
 
@@ -193,10 +320,11 @@ ggplot() + geom_sf(data = europe_cropped) +
            geom_sf(data = hertie_school, color = 'red') + 
            theme_bw()
 
-
 ```
 
-### 
+
+
+With `st_buffer` we can increase our geometry
 ```{r}
 hertie_buff = st_buffer(hertie_school, dist = 50 * 1000)
 
@@ -206,17 +334,13 @@ ggplot() + geom_sf(data = europe_cropped) +
 
 
 
-st_crs(europe_cropped)$units_gdal 
-st_crs(hertie_buff)$units_gdal 
-
-st_crs(europe_cropped)$IsGeographic
-st_crs(hertie_buff)$IsGeographic
-
 ```
 
 
 
-### 
+The `st_buffer` also allows us to draw wider circles around our buffer.
+Since our CRS is still WGS80 we have distortions in Europe. 
+Therefore, the circles are not perfect.
 ```{r}
 
 buff_500km  = st_buffer(hertie_school, dist = 500 * 1000)
@@ -231,28 +355,21 @@ ggplot() + geom_sf(data = europe_cropped) +
            theme_bw()
 
 
-
-st_crs(europe_cropped)$units_gdal 
-st_crs(hertie_buff)$units_gdal 
-
-st_crs(europe_cropped)$IsGeographic
-st_crs(hertie_buff)$IsGeographic
-
-
-
+st_crs(europe_cropped)
 ```
 
 
 
 
 
-### 
+To archive better circles we have to use a datum that is more suitable for Europe.
+For examples EPSG:5643 is recommended for central Europe.
 ```{r}
 new_europe <- st_transform(europe_cropped, 'EPSG:5643') # set CRS
-new_buff <- st_transform(hertie_buff, 'EPSG:5643') # set CRS
-buff_500km  <- st_transform(buff_500km, 'EPSG:5643') # set CRS
-buff_1000km <- st_transform(buff_1000km, 'EPSG:5643') # set CRS
-buff_1500km <- st_transform(buff_1500km, 'EPSG:5643') # set CRS
+new_buff <- st_transform(hertie_buff, 'EPSG:5643')      # set CRS
+buff_500km  <- st_transform(buff_500km, 'EPSG:5643')    # set CRS
+buff_1000km <- st_transform(buff_1000km, 'EPSG:5643')   # set CRS
+buff_1500km <- st_transform(buff_1500km, 'EPSG:5643')   # set CRS
 
 
 
@@ -274,33 +391,38 @@ st_crs(new_buff)$IsGeographic
 
 
 
-### 
-```{r}
 
+**Excercise 1**
+```
+Try to retrive the spatial data for Canada from World country polygons (from the spData package)  
 ```
 
 
-
-
-### 
-```{r}
-
+**Excercise 2**
+```
+Try to find a suitable projection or datum for Canada on https://epsg.io and use it for plotting Canada in ggplot2.
 ```
 
 
-
-
-### 
-```{r}
+**Excercise 3**
+```
+Try to find the coordinates for Canadas capital (Ottawa) and create a point geometry. Plot the point to that map you presivouly created.
 
 ```
 
+---
 
 
 
-### 
-```{r}
+Hopefully you learned something new! Feel free to contact us in case you have further questions and enjoy the rest of our interesting workshop day!
 
-```
+## Sources 
+
+* [_Lesson 3. Coordinate Reference System and Spatial Projection_](https://www.earthdatascience.org/courses/earth-analytics/spatial-data-r/intro-to-coordinate-reference-systems/)
+* [_ZOOMING IN ON MAPS WITH SF AND GGPLOT2_](https://datascience.blog.wzb.eu/2019/04/30/zooming-in-on-maps-with-sf-and-ggplot2/)
+* [_The sf package_](https://www.geo.fu-berlin.de/en/v/soga/Introduction-to-R/Spatial-Data/sf/index.html)
+* [_Geocomputation with R_](https://geocompr.robinlovelace.net/spatial-class.html#geographic-coordinate-systems)
+
+
 
 
