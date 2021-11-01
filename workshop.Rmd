@@ -12,7 +12,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Hopefully you learned something new! Feel free to contact us in case you have further questions and enjoy the rest of our interesting workshop day!
+Hi again! We hope you are excited to see how the concepts you just learned about work in practice! Let's dive right in and go through some examples!
 
 
 
